@@ -24,12 +24,13 @@ import com.alipay.remoting.exception.SerializationException;
 
 /**
  * Remoting command.
- * 
+ * 远程命令
  * @author jiangping
  * @version $Id: RemotingCommand.java, v 0.1 2015-12-11 PM10:17:11 tao Exp $
  */
 public interface RemotingCommand extends Serializable {
     /**
+     * 获取此命令所属协议的代码
      * Get the code of the protocol that this command belongs to
      *
      * @return protocol code
@@ -37,6 +38,7 @@ public interface RemotingCommand extends Serializable {
     ProtocolCode getProtocolCode();
 
     /**
+     * 获取此命令的命令代码
      * Get the command code for this command
      *
      * @return command code
@@ -44,6 +46,7 @@ public interface RemotingCommand extends Serializable {
     CommandCode getCmdCode();
 
     /**
+     * 获取命令的id
      * Get the id of the command
      *
      * @return an int value represent the command id
@@ -52,6 +55,7 @@ public interface RemotingCommand extends Serializable {
 
     /**
      * Get invoke context for this command
+     * 获取此命令的调用上下文
      *
      * @return context
      */

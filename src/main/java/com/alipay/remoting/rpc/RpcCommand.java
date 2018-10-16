@@ -29,6 +29,7 @@ import com.alipay.remoting.rpc.protocol.RpcDeserializeLevel;
 import com.alipay.remoting.rpc.protocol.RpcProtocol;
 
 /**
+ * 远程命令
  * Remoting command. <br>
  * A remoting command stands for a kind of transfer object in the network communication layer.
  * 
