@@ -20,7 +20,7 @@ import com.alipay.remoting.exception.RemotingException;
 
 /**
  * Exception when invoke failed
- * 
+ * 调用失败异常类
  * @author jiangping
  * @version $Id: InvokeException.java, v 0.1 2015-10-5 PM8:19:36 tao Exp $
  */
