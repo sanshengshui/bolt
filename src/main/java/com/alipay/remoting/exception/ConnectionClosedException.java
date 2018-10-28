@@ -18,7 +18,7 @@ package com.alipay.remoting.exception;
 
 /**
  * Exception when connection is closed.
- * 
+ * 当连接异常关闭时，抛出此类
  * @author jiangping
  * @version $Id: ConnectionClosedException.java, v 0.1 Jan 15, 2016 3:13:12 PM tao Exp $
  */
