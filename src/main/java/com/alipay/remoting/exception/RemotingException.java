@@ -18,12 +18,15 @@ package com.alipay.remoting.exception;
 
 /**
  * Exception for default remoting problems
- * 
+ * 当远程调用出现问题时，抛出异常
  * @author jiangping
  * @version $Id: RemotingException.java, v 0.1 2015-9-21 PM 4:49:46 tao Exp $
  */
 public class RemotingException extends Exception {
 
+    /**
+     * 用作序列化
+     */
     /** For serialization */
     private static final long serialVersionUID = 6183635628271812505L;
 
