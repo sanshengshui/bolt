@@ -18,7 +18,7 @@ package com.alipay.remoting.exception;
 
 /**
  * Exception when codec problems occur
- * 
+ * 当编解码出现问题，抛出此类。
  * @author xiaomin.cxm
  * @version $Id: CodecException.java, v 0.1 2016-1-3 PM 6:26:12 xiaomin.cxm Exp $
  */

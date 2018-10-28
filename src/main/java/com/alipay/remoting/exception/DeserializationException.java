@@ -18,7 +18,7 @@ package com.alipay.remoting.exception;
 
 /**
  * Exception when deserialize failed
- *
+ * 当反序列化出现异常时，抛出异常类
  * @author tsui
  * @version $Id: DeserializationException.java, v 0.1 2017-07-26 16:13 tsui Exp $
  */

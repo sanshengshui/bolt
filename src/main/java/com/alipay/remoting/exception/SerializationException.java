@@ -18,7 +18,7 @@ package com.alipay.remoting.exception;
 
 /**
  * Exception when serialize failed
- *
+ * 当序列化失败时，抛出异常类
  * @author tsui
  * @version $Id: SerializationException.java, v 0.1 2017-07-26 16:12 tsui Exp $
  */
