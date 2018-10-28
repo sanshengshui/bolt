@@ -20,7 +20,7 @@ import com.alipay.remoting.exception.RemotingException;
 
 /**
  * Exception when thread pool busy of process server
- * 
+ *  当服务端处理器线程池忙碌时，抛出此类
  * @author jiangping
  * @version $Id: InvokeServerBusyException.java, v 0.1 2015-10-9 AM11:16:10 tao Exp $
  */

@@ -20,7 +20,7 @@ import com.alipay.remoting.exception.RemotingException;
 
 /**
  * Server exception caught when invoking
- * 
+ *  当服务端调用出错，抛出异常类
  * @author jiangping
  * @version $Id: InvokeServerException.java, v 0.1 2015-10-9 AM11:16:10 tao Exp $
  */
