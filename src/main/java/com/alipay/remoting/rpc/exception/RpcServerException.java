@@ -20,7 +20,7 @@ import com.alipay.remoting.exception.RemotingException;
 
 /**
  * Rpc server exception when processing request
- * 
+ * 当RPC服务处理请求出错异常类
  * @author jiangping
  * @version $Id: InvokeServerException.java, v 0.1 2015-10-9 PM11:16:10 tao Exp $
  */
