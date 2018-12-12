@@ -32,43 +32,45 @@ import com.alipay.remoting.rpc.protocol.RpcProtocol;
  * 远程命令
  * Remoting command. <br>
  * A remoting command stands for a kind of transfer object in the network communication layer.
- * 
+ * 远程命令代表网络通信层中的一种传输对象
  * @author jiangping
  * @version $Id: RpcCommand.java, v 0.1 2015-9-6 PM5:26:31 tao Exp $
  */
 public abstract class RpcCommand implements RemotingCommand {
 
-    /** For serialization  */
+    /** For serialization 序列化使用 */
     private static final long serialVersionUID = -3570261012462596503L;
 
     /**
      * Code which stands for the command.
+     * 代表命令的代码
      */
     private CommandCode       cmdCode;
-    /* command version */
+    /* command version  命令版本 */
     private byte              version          = 0x1;
     private byte              type;
     /**
      * Serializer, see the Configs.SERIALIZER_DEFAULT for the default serializer.
-     * Notice: this can not be changed after initialized at runtime.
+     * 序列化程序，请参阅Configs.SERIALIZER_DEFAULT以获取默认序列化程序
+     * Notice: this can not be changed after initialized at runtime. 在运行时初始化后无法更改
      */
     private byte              serializer       = ConfigManager.serializer;
     /**
-     * protocol switches
+     * protocol switches 协议开关
      */
     private ProtocolSwitch    protocolSwitch   = new ProtocolSwitch();
     private int               id;
-    /** The length of clazz */
+    /** The length of clazz class的长度 */
     private short             clazzLength      = 0;
     private short             headerLength     = 0;
     private int               contentLength    = 0;
-    /** The class of content */
+    /** The class of content 内容类 */
     private byte[]            clazz;
-    /** Header is used for transparent transmission. */
+    /** Header is used for transparent transmission. 头部用于透明传输 */
     private byte[]            header;
-    /** The bytes format of the content of the command. */
+    /** The bytes format of the content of the command. 命令内容的字节格式 */
     private byte[]            content;
-    /** invoke context of each rpc command. */
+    /** invoke context of each rpc command. 调用每个rpc命令的上下文 */
     private InvokeContext     invokeContext;
 
     public RpcCommand() {
@@ -96,7 +98,7 @@ public abstract class RpcCommand implements RemotingCommand {
 
     /**
      * Serialize  the class header and content.
-     * 
+     * 序列化类,头部,内容
      * @throws Exception
      */
     @Override
@@ -108,7 +110,7 @@ public abstract class RpcCommand implements RemotingCommand {
 
     /**
      * Deserialize the class header and content.
-     * 
+     * 反序列类,头部,内容
      * @throws Exception
      */
     @Override
@@ -120,10 +122,14 @@ public abstract class RpcCommand implements RemotingCommand {
 
     /**
      * Deserialize according to mask.
+     * 根据掩码反序列化
      * <ol>
      *     <li>If mask <= {@link RpcDeserializeLevel#DESERIALIZE_CLAZZ}, only deserialize clazz - only one part.</li>
+     *     如果掩码 <= 反序列化等级(0x00),仅仅反序列化类, 一部分内容
      *     <li>If mask <= {@link RpcDeserializeLevel#DESERIALIZE_HEADER}, deserialize clazz and header - two parts.</li>
+     *     如果掩码 <= 反序列化等级(0x01),反序列化类和头部，二部分内容
      *     <li>If mask <= {@link RpcDeserializeLevel#DESERIALIZE_ALL}, deserialize clazz, header and content - all three parts.</li>
+     *     如果掩码 <= 反序列化等级(0x02),反序列化类，头部，内容。全部部分。
      * </ol>
      *
      * @param mask
@@ -142,7 +148,7 @@ public abstract class RpcCommand implements RemotingCommand {
 
     /**
      * Serialize content class.
-     * 
+     * 序列化内容类
      * @throws Exception
      */
     public void serializeClazz() throws SerializationException {
@@ -151,7 +157,7 @@ public abstract class RpcCommand implements RemotingCommand {
 
     /**
      * Deserialize the content class.
-     * 
+     * 反序列化内容类
      * @throws Exception
      */
     public void deserializeClazz() throws DeserializationException {
@@ -160,7 +166,7 @@ public abstract class RpcCommand implements RemotingCommand {
 
     /**
      * Serialize the header.
-     * 
+     * 序列化头部
      * @throws Exception
      */
     public void serializeHeader(InvokeContext invokeContext) throws SerializationException {
@@ -168,7 +174,7 @@ public abstract class RpcCommand implements RemotingCommand {
 
     /**
      * Serialize the content.
-     * 
+     * 序列化内容
      * @throws Exception
      */
     @Override
@@ -177,7 +183,7 @@ public abstract class RpcCommand implements RemotingCommand {
 
     /**
      * Deserialize the header.
-     * 
+     * 反序列化头部
      * @throws Exception
      */
     public void deserializeHeader(InvokeContext invokeContext) throws DeserializationException {
@@ -185,6 +191,7 @@ public abstract class RpcCommand implements RemotingCommand {
 
     /**
      * Deserialize the content.
+     * 反序列化内容
      * 
      * @throws Exception
      */
