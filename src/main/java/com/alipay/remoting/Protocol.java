@@ -25,34 +25,35 @@ package com.alipay.remoting;
 public interface Protocol {
     /**
      * Get the newEncoder for the protocol.
-     * 
+     * 协议编码器方式
      * @return
      */
     CommandEncoder getEncoder();
 
     /**
      * Get the decoder for the protocol.
-     * 
+     * 协议解码器方式
      * @return
      */
     CommandDecoder getDecoder();
 
     /**
      * Get the heartbeat trigger for the protocol.
-     * 
+     * 协议相关的心跳触发和处理
      * @return
      */
     HeartbeatTrigger getHeartbeatTrigger();
 
     /**
      * Get the command handler for the protocol.
-     * 
+     * 命令处理器管理
      * @return
      */
     CommandHandler getCommandHandler();
 
     /**
      * Get the command factory for the protocol.
+     * 可扩展的命令
      * @return
      */
     CommandFactory getCommandFactory();
