@@ -21,13 +21,47 @@ Bolt 名字取自迪士尼动画-闪电狗，是一个基于 Netty 最佳实践�
 
 - IntelliJ IDEA
 
-源码拉取
+## 源码拉取
+
+从官方仓库https://github.com/alipay/sofa-bolt `Fork` 出属于自己的仓库，为什么要`Fork` ? 既然开始阅读、调试源码，我们可能会写一些注释，有了自己的仓库，可以进行自由的提交。:smiling_imp:
+
+使用 `IntelliJ IDEA` 从 `Fork` 出来的仓库拉取代码。
+
+## example 模块
+
+在test模块里，官网提供了多个Bolt的使用示例。
+
+我们提供了一个 RpcClient 与 RpcServer，经过简单的必要功能初始化，或者功能开关，即可使用。
+
+### RpcServer
+
+执行 `com.alipay.remoting.demo.RpcServerDemoByMain` 的 `#main(args)` 方法，启动服务端。输出日志如下：
+
+```
+Sofa-Middleware-Log SLF4J : Actual binding is of type [ com.alipay.remoting Log4j2 ]
+server start ok!
+```
+
+### RpcClient
+
+执行 `com.alipay.remoting.demo.RpcClientDemoByMain` 的 `#main(args)` 方法，启动服务端。输出日志如下：
+
+```
+Sofa-Middleware-Log SLF4J : Actual binding is of type [ com.alipay.remoting Log4j2 ]
+invoke sync result = [HELLO WORLD! I'm server return]
+```
+
+如此，我们就可以愉快的进行 Netty 调试啦。读源码，一定要多多调试源码。非常重要！！！:imp:
 
 
+
+# 私有通讯协议设计
 
 ![](/home/james/文档/Bolt-Protocol.png)
 
+​                                                                     图1 - 私有协议与必要功能模块
 
+## Protocol
 
 | 字段名                | 字节范围       | 备注                                      |
 | --------------------- | -------------- | ----------------------------------------- |
@@ -46,4 +80,9 @@ Bolt 名字取自迪士尼动画-闪电狗，是一个基于 Netty 最佳实践�
 | content               | N字节          | 内容                                      |
 | CRC32(optional)       | 4字节          | 帧的CRC32（当ver1> 1时存在）              |
 
+> 在Bolt通讯框架中，有2个协议规范。因为设计误差，其中RpcProtocol这个协议版本被废弃，以下的解读为RpcProtocolV2版本。
 
+1. 首先，第一个字段是魔数，通常情况下为固定的几个字节（我们这边规定为1个字节）。                          为什么需要这个字段，而且还是一个固定的数？假设我们在服务器上开了一个端口，比如 80 端口，如果没有这个魔数，任何数据包传递到服务器，服务器都会根据自定义协议来进行处理，包括不符合自定义协议规范的数据包。                                                                                                                                               例如，我们直接通过 `http://服务器ip` 来访问服务器（默认为 80 端口）， 服务端收到的是一个标准的 HTTP 协议数据包，但是它仍然会按照事先约定好的协议来处理 HTTP 协议，显然，这是会解析出错的。而有了这个魔数之后，服务端首先取出前面四个字节进行比对，能够在第一时间识别出这个数据包并非是遵循自定义协议的，也就是无效数据包，为了安全考虑可以直接关闭连接以节省资源。                                        在 Java 的字节码的二进制文件中，开头的 1 个字节为`（byte）2` 用来标识这是个字节码文件，亦是异曲同工之妙。
+2. 接下来一个字节为版本号，通常情况下是预留字段，用于协议升级的时候用到，有点类似 TCP 协议中的一个字段标识是 IPV4 协议还是 IPV6 协议，其中第一个版本为(byte) 1，第二个版本为(byte) 2。
+
+## Encoder 与 Decoder
