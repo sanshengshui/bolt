@@ -63,21 +63,21 @@ public interface RemotingCommand extends Serializable {
 
     /**
      * Get serializer type for this command
-     *
+     * 获取此命令的序列化程序类型
      * @return
      */
     byte getSerializer();
 
     /**
      * Get the protocol switch status for this command
-     *
+     * 获取此命令的协议开关状态
      * @return
      */
     ProtocolSwitch getProtocolSwitch();
 
     /**
      * Serialize all parts of remoting command
-     *
+     * 序列化命令的所有部分、
      * @throws SerializationException
      */
     void serialize() throws SerializationException;
