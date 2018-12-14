@@ -20,15 +20,15 @@ import com.alipay.remoting.CommandCode;
 
 /**
  * Command of request.
- * 
+ * 请求命令
  * @author jiangping
  * @version $Id: RequestCommand.java, v 0.1 2015-9-10 AM10:27:59 tao Exp $
  */
 public abstract class RequestCommand extends RpcCommand {
 
-    /** For serialization  */
+    /** For serialization  序列化*/
     private static final long serialVersionUID = -3457717009326601317L;
-    /** timeout, -1 stands for no timeout */
+    /** timeout, -1 stands for no timeout 超时,-1 代表不超时*/
     private int               timeout          = -1;
 
     public RequestCommand() {
@@ -49,8 +49,8 @@ public abstract class RequestCommand extends RpcCommand {
 
     /**
      * Getter method for property <tt>timeout</tt>.
-     * 
-     * @return property value of timeout
+     * 获取timeout属性方法
+     * @return property value of timeout 超时属性的值
      */
     public int getTimeout() {
         return timeout;
@@ -58,8 +58,8 @@ public abstract class RequestCommand extends RpcCommand {
 
     /**
      * Setter method for property <tt>timeout</tt>.
-     * 
-     * @param timeout value to be assigned to property timeout
+     * 超时 属性的Setter方法
+     * @param timeout value to be assigned to property timeout 分配给超时属性的值
      */
     public void setTimeout(int timeout) {
         this.timeout = timeout;

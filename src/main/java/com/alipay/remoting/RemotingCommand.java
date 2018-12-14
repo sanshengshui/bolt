@@ -84,14 +84,14 @@ public interface RemotingCommand extends Serializable {
 
     /**
      * Deserialize all parts of remoting command
-     *
+     * 反序列化远程命令的所有部分
      * @throws DeserializationException
      */
     void deserialize() throws DeserializationException;
 
     /**
      * Serialize content of remoting command
-     *
+     * 序列化远程命令内容
      * @param invokeContext
      * @throws SerializationException
      */
@@ -99,7 +99,7 @@ public interface RemotingCommand extends Serializable {
 
     /**
      * Deserialize content of remoting command
-     *
+     * 反序列化远程命令内容
      * @param invokeContext
      * @throws DeserializationException
      */

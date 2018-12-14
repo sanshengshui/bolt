@@ -23,14 +23,20 @@ import com.alipay.remoting.ResponseStatus;
 
 /**
  * Command of response.
- * 
+ * 回复命令
  * @author jiangping
  * @version $Id: ResponseCommand.java, v 0.1 2015-9-10 AM10:31:34 tao Exp $
  */
 public class ResponseCommand extends RpcCommand {
 
-    /** For serialization  */
+    /** For serialization  序列化*/
     private static final long serialVersionUID = -5194754228565292441L;
+    /**
+     * responseStatus: 回复状态
+     * responseTimeMillis: 回复时长
+     * responseHost: 回复地址
+     * Throwable: 抛出异常
+     */
     private ResponseStatus    responseStatus;
     private long              responseTimeMillis;
     private InetSocketAddress responseHost;
