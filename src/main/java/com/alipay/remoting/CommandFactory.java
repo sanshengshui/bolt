@@ -20,7 +20,7 @@ import java.net.InetSocketAddress;
 
 /**
  * Command factory
- * 
+ *  命令工厂
  * @author xiaomin.cxm
  * @version $Id: CommandFactory.java, v 0.1 Mar 10, 2016 11:24:24 AM yunliang.shi Exp $
  */
@@ -29,7 +29,7 @@ public interface CommandFactory {
 
     /**
      * create a request command with request object
-     *
+     * 用请求实体生成请求命令
      * @param requestObject the request object included in request command
      * @param <T>
      * @return
@@ -40,6 +40,7 @@ public interface CommandFactory {
 
     /**
      * create a normal response with response object
+     * 用回复实体生成一个通常的回复
      * @param responseObject
      * @param requestCmd
      * @param <T>

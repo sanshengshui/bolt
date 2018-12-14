@@ -23,14 +23,14 @@ import io.netty.channel.ChannelHandlerContext;
 
 /**
  * Decode command.
- * 
+ *  解码命令
  * @author jiangping
  * @version $Id: CommandDecoder.java, v 0.1 Mar 10, 2016 11:32:46 AM jiangping Exp $
  */
 public interface CommandDecoder {
     /**
      * Decode bytes into object.
-     * 
+     *  解码字节数组成实体类
      * @param ctx
      * @param in
      * @param out

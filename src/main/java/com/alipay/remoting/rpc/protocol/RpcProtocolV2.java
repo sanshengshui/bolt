@@ -25,6 +25,7 @@ import com.alipay.remoting.Protocol;
 import com.alipay.remoting.rpc.RpcCommandFactory;
 
 /**
+ * v2 版本请求命令协议
  * Request command protocol for v2
  * 0     1     2           4           6           8          10     11     12          14         16
  * +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+------+-----+-----+-----+-----+
@@ -36,7 +37,21 @@ import com.alipay.remoting.rpc.RpcCommandFactory;
  * +                                                                                                +
  * |                               ... ...                                  | CRC32(optional)       |
  * +------------------------------------------------------------------------------------------------+
- * 
+ *
+ * 魔数: 协议代码
+ * ver1: 协议版本
+ * type: request/response/request oneway
+ * cmdcode: 远程命令代码
+ * ver2: 远程命令版本
+ * requestId: 请求命令id
+ * codec: 编解码代码
+ * switch: 协议开关功能
+ * timeout/respstatus: 超时/回复状态
+ * classLen: 类长度
+ * headerLen: 头部长度
+ * contentLen: 内容长度
+ * CRC32(optional): 帧的CRC32(当ver1>1时存在)
+ *
  * proto: code for protocol
  * ver1: version for protocol
  * type: request/response/request oneway
@@ -66,14 +81,20 @@ import com.alipay.remoting.rpc.RpcCommandFactory;
  * @version $Id: RpcProtocolV2.java, v 0.1 2017-05-27 PM7:04:04 tao Exp $
  */
 public class RpcProtocolV2 implements Protocol {
+    /**
+     * 因为设计错误,RpcProtocol版本被遗弃，所以设计RpcProtocolV2并添加协议版本
+     */
     /* because the design defect, the version is neglected in RpcProtocol, so we design RpcProtocolV2 and add protocol version. */
     public static final byte PROTOCOL_CODE       = (byte) 2;
-    /** version 1, is the same with RpcProtocol */
+    /** version 1, is the same with RpcProtocol : PpcProtocol ver1 为 (byte) 1 */
     public static final byte PROTOCOL_VERSION_1  = (byte) 1;
-    /** version 2, is the protocol version for RpcProtocolV2 */
+    /** version 2, is the protocol version for RpcProtocolV2 : PpcProtocol ver1 为 (byte) 2 */
     public static final byte PROTOCOL_VERSION_2  = (byte) 2;
 
     /**
+     * 和协议相反
+     * ver1: 一个用于协议版本
+     * ver2: 一个用于协议开关
      * in contrast to protocol v1,
      * one more byte is used as protocol version,
      * and another one is userd as protocol switch
