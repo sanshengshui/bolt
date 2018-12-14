@@ -29,13 +29,21 @@ import com.alipay.remoting.serialization.SerializerManager;
 
 /**
  * Response command for Rpc.
- * 
+ *  Rpc回复命令
  * @author jiangping
  * @version $Id: RpcResponseCommand.java, v 0.1 2015-9-25 PM2:15:41 tao Exp $
  */
 public class RpcResponseCommand extends ResponseCommand {
-    /** For serialization  */
+    /** For serialization  序列化 */
     private static final long serialVersionUID = 5667111367880018776L;
+
+    /**
+     * responseObject 回复实体
+     * responseClass  回复类
+     * customSerializer 自定义序列化类
+     * responseHeader 回复头部
+     * errorMsg 错误代码
+     */
     private Object            responseObject;
 
     private String            responseClass;

@@ -18,7 +18,7 @@ package com.alipay.remoting;
 
 /**
  * Status of the response.
- * 
+ *  回复状态
  * @author jiangping
  * @version $Id: ResponseStatus.java, v 0.1 2015-9-28 PM3:08:12 tao Exp $
  */
