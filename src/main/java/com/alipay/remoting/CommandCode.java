@@ -18,11 +18,14 @@ package com.alipay.remoting;
 
 /**
  * Remoting command code stands for a specific remoting command, and every kind of command has its own code.
- * 
+ * 远程命令代码代表一种特定的远程命令，每种命令有自己的编号
  * @author jiangping
  * @version $Id: CommandCode.java, v 0.1 2015-9-7 PM7:10:18 tao Exp $
  */
 public interface CommandCode {
+    /**
+     * 0 被心跳占用，不能被其他命令所使用
+     */
     // value 0 is occupied by heartbeat, don't use value 0 for other commands
     short HEARTBEAT_VALUE = 0;
 

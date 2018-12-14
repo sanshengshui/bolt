@@ -30,13 +30,19 @@ import com.alipay.remoting.util.IDGenerator;
 
 /**
  * Request command for Rpc.
- * 
+ * Rpc请求命令
  * @author jiangping
  * @version $Id: RpcRequestCommand.java, v 0.1 2015-9-25 PM2:13:35 tao Exp $
  */
 public class RpcRequestCommand extends RequestCommand {
-    /** For serialization  */
+    /** For serialization  序列化*/
     private static final long serialVersionUID = -4602613826188210946L;
+    /**
+     * requestObject 请求实体
+     * requestClass 请求类
+     * customSerializer 自定义序列化类
+     * requestHeader 请求头部
+     */
     private Object            requestObject;
     private String            requestClass;
 
@@ -47,6 +53,7 @@ public class RpcRequestCommand extends RequestCommand {
 
     /**
      * create request command without id
+     * 生成请求命令，无需编号
      */
     public RpcRequestCommand() {
         super(RpcCommandCode.RPC_REQUEST);
@@ -54,6 +61,7 @@ public class RpcRequestCommand extends RequestCommand {
 
     /**
      * create request command with id and request object
+     * 用id和请求实体生成请求命令
      * @param request request object
      */
     public RpcRequestCommand(Object request) {

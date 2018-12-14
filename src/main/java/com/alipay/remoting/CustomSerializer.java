@@ -24,14 +24,14 @@ import com.alipay.remoting.rpc.ResponseCommand;
 
 /**
  * Define custom serializers for command header and content.
- * 
+ * 为命令头部和内容定义自定义序列化类
  * @author jiangping
  * @version $Id: CustomSerializer.java, v 0.1 2015-10-7 AM11:37:36 tao Exp $
  */
 public interface CustomSerializer {
     /**
      * Serialize the header of RequestCommand.
-     * 
+     *  序列化请求命令头部
      * @param request
      * @param invokeContext
      * @return
@@ -42,7 +42,7 @@ public interface CustomSerializer {
 
     /**
      * Serialize the header of ResponseCommand.
-     *
+     * 序列化回复命令的头部
      * @param response
      * @return
      * @throws CodecException
@@ -51,7 +51,7 @@ public interface CustomSerializer {
 
     /**
      * Deserialize the header of RequestCommand.
-     *
+     * 反序列化请求命令的头部
      * @param request
      * @return
      * @throws CodecException
@@ -60,7 +60,7 @@ public interface CustomSerializer {
 
     /**
      * Deserialize the header of ResponseCommand.
-     * 
+     * 反序列化回复命令的头部
      * @param response
      * @param invokeContext
      * @return
@@ -71,7 +71,7 @@ public interface CustomSerializer {
 
     /**
      * Serialize the content of RequestCommand.
-     *
+     * 序列化请求命令的内容
      * @param request
      * @param invokeContext
      * @return
@@ -82,7 +82,7 @@ public interface CustomSerializer {
 
     /**
      * Serialize the content of ResponseCommand.
-     * 
+     *  序列化回复命令的内容
      * @param response
      * @return
      * @throws CodecException
@@ -91,7 +91,7 @@ public interface CustomSerializer {
 
     /**
      * Deserialize the content of RequestCommand.
-     * 
+     *  反序列化请求命令的内容
      * @param request
      * @return
      * @throws CodecException
@@ -101,7 +101,7 @@ public interface CustomSerializer {
 
     /**
      * Deserialize the content of ResponseCommand.
-     * 
+     *  反序列化回复命令的内容
      * @param response
      * @param invokeContext
      * @return
