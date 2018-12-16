@@ -18,12 +18,24 @@ package com.alipay.remoting.config;
 
 /**
  * get configs through system properties prior to default value
+ * 在默认值之前通过系统属性获取配置
  *
  * @author tsui
  * @version $Id: ConfigManager.java, v 0.1 2017-08-03 19:21 tsui Exp $
  */
 public class ConfigManager {
-    // ~~~ properties for bootstrap
+    // ~~~ properties for bootstrap 引导程序的属性
+
+    /**
+     * TCP.nodelay : true
+     * TCP.SO_REUSEADDR : true
+     * TCP.SO_BACKLOG : 1024
+     * TCP.SO_KEEPALIVE :
+     * TCP.IO_RATIO
+     * TCP.NETTY_BUFFER_POOLED
+     *
+     * @return
+     */
     public static boolean tcp_nodelay() {
         return getBool(Configs.TCP_NODELAY, Configs.TCP_NODELAY_DEFAULT);
     }
@@ -66,7 +78,7 @@ public class ConfigManager {
         return getBool(Configs.NETTY_EPOLL_LT, Configs.NETTY_EPOLL_LT_DEFAULT);
     }
 
-    // ~~~ properties for idle
+    // ~~~ properties for idle 空闲属性
     public static boolean tcp_idle_switch() {
         return getBool(Configs.TCP_IDLE_SWITCH, Configs.TCP_IDLE_SWITCH_DEFAULT);
     }
@@ -83,7 +95,7 @@ public class ConfigManager {
         return getInt(Configs.TCP_SERVER_IDLE, Configs.TCP_SERVER_IDLE_DEFAULT);
     }
 
-    // ~~~ properties for connection manager
+    // ~~~ properties for connection manager 连接管理器的属性
     public static int conn_create_tp_min_size() {
         return getInt(Configs.CONN_CREATE_TP_MIN_SIZE, Configs.CONN_CREATE_TP_MIN_SIZE_DEFAULT);
     }
@@ -101,7 +113,7 @@ public class ConfigManager {
             Configs.CONN_CREATE_TP_KEEPALIVE_TIME_DEFAULT);
     }
 
-    // ~~~ properties for processor manager
+    // ~~~ properties for processor manager 处理器管理器的属性
     public static int default_tp_min_size() {
         return getInt(Configs.TP_MIN_SIZE, Configs.TP_MIN_SIZE_DEFAULT);
     }
@@ -118,12 +130,12 @@ public class ConfigManager {
         return getInt(Configs.TP_KEEPALIVE_TIME, Configs.TP_KEEPALIVE_TIME_DEFAULT);
     }
 
-    // ~~~ properties for reconnect manager
+    // ~~~ properties for reconnect manager 重新连接管理器的属性
     public static boolean conn_reconnect_switch() {
         return getBool(Configs.CONN_RECONNECT_SWITCH, Configs.CONN_RECONNECT_SWITCH_DEFAULT);
     }
 
-    // ~~~ properties for connection monitor
+    // ~~~ properties for connection monitor 连接监视器的属性
     public static boolean conn_monitor_switch() {
         return getBool(Configs.CONN_MONITOR_SWITCH, Configs.CONN_MONITOR_SWITCH_DEFAULT);
     }
@@ -145,14 +157,14 @@ public class ConfigManager {
         return getInt(Configs.RETRY_DETECT_PERIOD, Configs.RETRY_DETECT_PERIOD_DEFAULT);
     }
 
-    // ~~~ properties for serializer
+    // ~~~ properties for serializer 序列化程序的属性
     public static final byte serializer = serializer();
 
     public static byte serializer() {
         return getByte(Configs.SERIALIZER, Configs.SERIALIZER_DEFAULT);
     }
 
-    // ~~~ public helper methods to retrieve system property
+    // ~~~ public helper methods to retrieve system property 用于检索系统属性的公共帮助方法
     public static boolean getBool(String key, String defaultValue) {
         return Boolean.parseBoolean(System.getProperty(key, defaultValue));
     }

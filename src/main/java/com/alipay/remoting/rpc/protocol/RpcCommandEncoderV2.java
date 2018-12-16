@@ -35,12 +35,13 @@ import io.netty.util.Attribute;
 
 /**
  * Encode remoting command into ByteBuf v2.
- * 
+ * 编码远程命令成ByteBuf 第二版本
+ *
  * @author jiangping
  * @version $Id: RpcCommandEncoderV2.java, v 0.1 2017-05-27 PM8:11:27 tao Exp $
  */
 public class RpcCommandEncoderV2 implements CommandEncoder {
-    /** logger */
+    /** logger  日志 */
     private static final Logger logger = LoggerFactory.getLogger("RpcRemoting");
 
     /**

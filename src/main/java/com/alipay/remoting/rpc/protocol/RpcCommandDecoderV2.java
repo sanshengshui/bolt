@@ -38,7 +38,8 @@ import io.netty.channel.ChannelHandlerContext;
 
 /**
  * Command decoder for Rpc v2.
- * 
+ * Rpc的命令解码器
+ *
  * @author jiangping
  * @version $Id: RpcCommandDecoderV2.java, v 0.1 2017-05-27 PM5:15:26 tao Exp $
  */
