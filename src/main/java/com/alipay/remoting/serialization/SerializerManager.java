@@ -18,6 +18,7 @@ package com.alipay.remoting.serialization;
 
 /**
  * Manage all serializers.
+ * 管理所有序列化程序
  *
  * Notice: Serializer is different with Codec.
  * Serializer is mainly used to deserialize bytes to object, or serialize object to bytes. We can use hessian, json, protocol buff etc.
@@ -29,6 +30,9 @@ package com.alipay.remoting.serialization;
 public class SerializerManager {
 
     private static Serializer[] serializers = new Serializer[5];
+    /**
+     * 默认序列化工具 Hessian2
+     */
     public static final byte    Hessian2    = 1;
     //public static final byte    Json        = 2;
 
