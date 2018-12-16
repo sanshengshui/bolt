@@ -19,6 +19,7 @@ package com.alipay.remoting.config;
 import com.alipay.remoting.serialization.SerializerManager;
 
 /**
+ * 使用系统属性定义特定配置项的键并提供该配置项的默认值
  * Define the key for a certain config item using system property,
  *   and provide the default value for that config item.
  *
@@ -27,6 +28,9 @@ import com.alipay.remoting.serialization.SerializerManager;
  */
 public class Configs {
     // ~~~ configs and default values for bootstrap
+    /**
+     * bootstrap的配置和默认值
+     */
 
     /** TCP_NODELAY option */
     public static final String TCP_NODELAY                           = "bolt.tcp.nodelay";
@@ -69,7 +73,9 @@ public class Configs {
     public static final String NETTY_EPOLL_LT_DEFAULT                = "true";
 
     // ~~~ configs and default values for idle
-
+    /**
+     * 空闲的配置和默认值
+     */
     /** TCP idle switch */
     public static final String TCP_IDLE_SWITCH                       = "bolt.tcp.heartbeat.switch";
     public static final String TCP_IDLE_SWITCH_DEFAULT               = "true";
@@ -87,6 +93,9 @@ public class Configs {
     public static final String TCP_SERVER_IDLE_DEFAULT               = "90000";
 
     // ~~~ configs and default values for connection manager
+    /**
+     * 连接管理器的配置和默认值
+     */
 
     /** Thread pool min size for the connection manager executor */
     public static final String CONN_CREATE_TP_MIN_SIZE               = "bolt.conn.create.tp.min";
@@ -114,6 +123,9 @@ public class Configs {
     public static final int    MAX_CONN_NUM_PER_URL                  = 100 * 10000;
 
     // ~~~ configs for processor manager
+    /**
+     * 处理器管理器的配置
+     */
 
     /**
      * Thread pool min size for the default executor.
@@ -140,12 +152,18 @@ public class Configs {
     public static final String TP_KEEPALIVE_TIME_DEFAULT             = "60";
 
     // ~~~ configs and default values for reconnect manager
+    /**
+     * 重新连接管理器的配置和默认值
+     */
 
     /** Reconnection switch */
     public static final String CONN_RECONNECT_SWITCH                 = "bolt.conn.reconnect.switch";
     public static final String CONN_RECONNECT_SWITCH_DEFAULT         = "false";
 
     // ~~~ configs and default values for connection monitor
+    /**
+     * 连接监视器的配置和默认值
+     */
 
     /**
      * Connection monitor switch
@@ -179,7 +197,9 @@ public class Configs {
     public static final String CONN_SERVICE_STATUS_ON                = "on";
 
     // ~~~ configs and default values for serializer
-
+    /**
+     * 序列化程序的配置和默认值
+     */
     /** Codec type */
     public static final String SERIALIZER                            = "bolt.serializer";
     public static final String SERIALIZER_DEFAULT                    = String
