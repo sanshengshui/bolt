@@ -20,14 +20,15 @@ import com.alipay.remoting.exception.CodecException;
 
 /**
  * Serializer for serialize and deserialize.
- * 
+ *  用于序列化和反序列化的程序接口类。
+ *
  * @author jiangping
  * @version $Id: Serializer.java, v 0.1 2015-10-4 PM9:37:57 tao Exp $
  */
 public interface Serializer {
     /**
      * Encode object into bytes.
-     * 
+     * 将对象编码为字节。
      * @param obj target object
      * @return serialized result
      */
@@ -35,7 +36,7 @@ public interface Serializer {
 
     /**
      * Decode bytes into Object.
-     * 
+     * 将字节解码为Object。
      * @param data serialized data
      * @param classOfT class of original data
      */
