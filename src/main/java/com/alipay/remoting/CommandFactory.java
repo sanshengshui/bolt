@@ -40,7 +40,7 @@ public interface CommandFactory {
 
     /**
      * create a normal response with response object
-     * 用回复实体生成一个通常的回复
+     * 用回复实体生成一个正常的回复
      * @param responseObject
      * @param requestCmd
      * @param <T>

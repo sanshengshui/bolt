@@ -27,7 +27,8 @@ import com.alipay.remoting.rpc.protocol.RpcResponseCommand;
 
 /**
  * command factory for rpc protocol
- * 
+ * rpc协议的命令工厂
+ *
  * @author tsui
  * @version $Id: RpcCommandFactory.java, v 0.1 2018-03-27 21:37 tsui Exp $
  */
