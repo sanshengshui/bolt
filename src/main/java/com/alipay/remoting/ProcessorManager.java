@@ -28,7 +28,7 @@ import com.alipay.remoting.config.ConfigManager;
 import com.alipay.remoting.log.BoltLoggerFactory;
 
 /**
- * Manager of processors<br>
+ * Manager of processors 处理器管理类<br>
  * Maintains the relationship between command and command processor through command code.
  * 
  * @author jiangping

@@ -1,3 +1,7 @@
+[TOC]
+
+
+
 # 前言
 
 SOFABolt 是蚂蚁金融服务集团开发的一套基于 Netty 实现的网络通信框架。
@@ -95,7 +99,9 @@ invoke sync result = [HELLO WORLD! I'm server return]
 
 协议相关的编解码方式: 私有协议需要有核心的encode与decode过程，并且针对业务负载能支持不同的序列化与反序列化机制。这部分，不同的私有协议，由于字段的差异，核心encode和decode过程是不一样的，因此需要分开考虑。
 
-首先我们来看编码实现,源代码路径 `com.alipay.remoting.rpc.protocol`, 代码如下:
+### Encoder
+
+首先我们来看编码实现,源代码路径 `com.alipay.remoting.rpc.protocol.RpcCommandEncoderV2`, 代码如下:
 
 ```
 /**
@@ -226,6 +232,26 @@ Netty 使用 ByteBuf 这个数据结构可以有效地区分可读数据和可�
 
 
 
+**容量 API**
+
+> capacity()
+
+表示 ByteBuf 底层占用了多少字节的内存（包括丢弃的字节、可读字节、可写字节），不同的底层实现机制有不同的计算方式，后面我们讲 ByteBuf 的分类的时候会讲到
+
+> maxCapacity()
+
+表示 ByteBuf 底层最大能够占用多少字节的内存，当向 ByteBuf 中写数据的时候，如果发现容量不足，则进行扩容，直到扩容到 maxCapacity，超过这个数，就抛异常
+
+> readableBytes() 与 isReadable()
+
+readableBytes() 表示 ByteBuf 当前可读的字节数，它的值等于 writerIndex-readerIndex，如果两者相等，则不可读，isReadable() 方法返回 false
+
+> writableBytes()、 isWritable() 与 maxWritableBytes()
+
+writableBytes() 表示 ByteBuf 当前可写的字节数，它的值等于 capacity-writerIndex，如果两者相等，则表示不可写，isWritable() 返回 false，但是这个时候，并不代表不能往 ByteBuf 中写数据了， 如果发现往 ByteBuf 中写数据写不进去的话，Netty 会自动扩容 ByteBuf，直到扩容到底层的内存大小为 maxCapacity，而 maxWritableBytes() 就表示可写的最大字节数，它的值等于 maxCapacity-writerIndex
+
+
+
 **读写API**
 
 本质上，关于 ByteBuf 的读写都可以看作从指针开始的地方开始读写数据
@@ -239,3 +265,193 @@ writeBytes() 表示把字节数组 src 里面的数据全部写到 ByteBuf，而
 writeByte() 表示往 ByteBuf 中写一个字节，而 buffer.readByte() 表示从 ByteBuf 中读取一个字节，类似的 API 还有 writeBoolean()、writeChar()、writeShort()、writeInt()、writeLong()、writeFloat()、writeDouble() 与 readBoolean()、readChar()、readShort()、readInt()、readLong()、readFloat()、readDouble() 这里就不一一赘述了，相信读者应该很容易理解这些 API
 
 与读写 API 类似的 API 还有 getBytes、getByte() 与 setBytes()、setByte() 系列，唯一的区别就是 get/set 不会改变读写指针，而 read/write 会改变读写指针。
+
+
+
+### Decoder
+
+接下来我们来看解码实现过程，源代码路径 `com.alipay.remoting.rpc.protocol.RpcCommandDecoderV2`。
+
+首先需要可读数据进行长度判断，是否大于请求报文头部和回复报文头部的最小长度。以及对ByteBuf进行魔数的验证，当不是可识别的协议，即抛出异常。
+
+代码如下:
+
+```
+ private int                 lessLen;
+
+    {
+        lessLen = RpcProtocolV2.getResponseHeaderLength() < RpcProtocolV2.getRequestHeaderLength() ? RpcProtocolV2
+            .getResponseHeaderLength() : RpcProtocolV2.getRequestHeaderLength();
+    }
+    
+     // 请求报文头部和回复报文头部的最小长度
+        // the less length between response header and request header
+        if (in.readableBytes() >= lessLen) {
+            //保存当前的读指针
+            in.markReaderIndex();
+            //读取协议魔数
+            byte protocol = in.readByte();
+            //恢复读指针到原来的位置,即 in.mark..位置
+            in.resetReaderIndex();
+            if (protocol == RpcProtocolV2.PROTOCOL_CODE) {
+               ......
+            } else {
+                //发现魔数异常，抛出不知道的协议错误!
+                String emsg = "Unknown protocol: " + protocol;
+                logger.error(emsg);
+                throw new RuntimeException(emsg);
+            }
+
+        }
+```
+
+
+
+**读写指针相关的 API**
+
+> readerIndex() 与 readerIndex(int)
+
+前者表示返回当前的读指针 readerIndex, 后者表示设置读指针
+
+> writeIndex() 与 writeIndex(int)
+
+前者表示返回当前的写指针 writerIndex, 后者表示设置写指针
+
+> markReaderIndex() 与 resetReaderIndex()
+
+前者表示把当前的读指针保存起来，后者表示把当前的读指针恢复到之前保存的值，下面两段代码是等价的
+
+```
+// 代码片段1
+int readerIndex = buffer.readerIndex();
+// .. 其他操作
+buffer.readerIndex(readerIndex);
+
+
+// 代码片段二
+buffer.markReaderIndex();
+// .. 其他操作
+buffer.resetReaderIndex();
+```
+
+希望大家多多使用代码片段二这种方式，不需要自己定义变量，无论 buffer 当作参数传递到哪里，调用 resetReaderIndex() 都可以恢复到之前的状态，在解析自定义协议的数据包的时候非常常见，推荐大家使用这一对 API
+
+> markWriterIndex() 与 resetWriterIndex()
+
+
+
+RPC请求命令解码和回复命令解码是相似的,以下我以请求解码为例进行解读:
+
+```
+if (type == RpcCommandType.REQUEST || type == RpcCommandType.REQUEST_ONEWAY) {
+                        //decode request 因已经读取三个byte了,所以需要减3
+                        if (in.readableBytes() >= RpcProtocolV2.getRequestHeaderLength() - 3) {
+                            short cmdCode = in.readShort();
+                            byte ver2 = in.readByte();
+                            int requestId = in.readInt();
+                            byte serializer = in.readByte();
+                            byte protocolSwitchValue = in.readByte();
+                            int timeout = in.readInt();
+                            short classLen = in.readShort();
+                            short headerLen = in.readShort();
+                            int contentLen = in.readInt();
+                            byte[] clazz = null;
+                            byte[] header = null;
+                            byte[] content = null;
+
+                            // decide the at-least bytes length for each version
+                            int lengthAtLeastForV1 = classLen + headerLen + contentLen;
+                            //判断协议是否开启CRC,如有,最小bytes长度加4
+                            boolean crcSwitchOn = ProtocolSwitch.isOn(
+                                ProtocolSwitch.CRC_SWITCH_INDEX, protocolSwitchValue);
+                            int lengthAtLeastForV2 = classLen + headerLen + contentLen;
+                            if (crcSwitchOn) {
+                                lengthAtLeastForV2 += 4;// crc int
+                            }
+
+                            // 如果满足V1协议且长度大于最小V1协议长度 或 满足V2协议且长度大于最小V2协议长度,则继续读取
+                            // continue read
+                            if ((version == RpcProtocolV2.PROTOCOL_VERSION_1 && in.readableBytes() >= lengthAtLeastForV1)
+                                || (version == RpcProtocolV2.PROTOCOL_VERSION_2 && in
+                                    .readableBytes() >= lengthAtLeastForV2)) {
+                                // 读取类
+                                if (classLen > 0) {
+                                    clazz = new byte[classLen];
+                                    in.readBytes(clazz);
+                                }
+                                // 读取头部
+                                if (headerLen > 0) {
+                                    header = new byte[headerLen];
+                                    in.readBytes(header);
+                                }
+                                // 读取内容
+                                if (contentLen > 0) {
+                                    content = new byte[contentLen];
+                                    in.readBytes(content);
+                                }
+                                if (version == RpcProtocolV2.PROTOCOL_VERSION_2 && crcSwitchOn) {
+                                    //校验内容
+                                    checkCRC(in, startIndex);
+                                }
+                            } else {// not enough data 不足够的数据,重置读指针
+                                in.resetReaderIndex();
+                                return;
+                            }
+
+                            RequestCommand command;
+                            //判断是心跳命令还是请求命令
+                            if (cmdCode == CommandCode.HEARTBEAT_VALUE) {
+                                command = new HeartbeatCommand();
+                            } else {
+                                command = createRequestCommand(cmdCode);
+                            }
+                            //封装实体
+                            command.setType(type);
+                            command.setVersion(ver2);
+                            command.setId(requestId);
+                            command.setSerializer(serializer);
+                            command.setProtocolSwitch(ProtocolSwitch.create(protocolSwitchValue));
+                            command.setTimeout(timeout);
+                            command.setClazz(clazz);
+                            command.setHeader(header);
+                            command.setContent(content);
+
+                            out.add(command);
+                        } else {
+                            in.resetReaderIndex();
+                        }
+```
+
+
+
+## **Heartbeat**
+
+协议相关的心跳触发与处理：不同的协议对心跳的需求，处理逻辑也可能是不同的。因此心跳的触发逻辑，心跳的处理逻辑，也都需要单独考虑。
+
+
+
+## **Command 与 Command Handler**
+
+- 可扩展的命令与命令处理器管理
+
+  ![](/home/james/IdeaProjects/bolt/doc/Bolt-Command.png)
+
+  ​                                                                       图2 - 通信命令设计举例
+
+- 负载命令：一般传输的业务的具体数据，比如带着请求参数，响应结果的命令；
+
+- 控制命令：一些功能管理命令，心跳命令等，它们通常完成一些复杂的分布式跨节点的协调功能，以此来保证负载命令通信过程的稳定，是必不可少的一部分。
+
+- 协议的通信过程，会有各种命令定义，逻辑上，我们把传输业务具体负载的请求对象，叫做负载命令（Payload Command），另一种叫做控制命令（Control Command），比如一些功能管理命令，或者心跳命令。
+
+- 定义了通信命令，我们还需要定义命令处理器，用来编写各个命令对应的业务处理逻辑。同时，我们需要保存命令与命令处理器的映射关系，以便在处理阶段，走到正确的处理器。
+
+
+
+  ​                                                                   
+
+- 
+
+- 
+
+- 
