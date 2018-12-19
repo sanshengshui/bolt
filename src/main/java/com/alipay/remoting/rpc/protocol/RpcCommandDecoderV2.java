@@ -59,10 +59,14 @@ public class RpcCommandDecoderV2 implements CommandDecoder {
      */
     @Override
     public void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+        // 请求报文头部和回复报文头部的最小长度
         // the less length between response header and request header
         if (in.readableBytes() >= lessLen) {
+            //保存当前的读指针
             in.markReaderIndex();
+            //读取协议魔数
             byte protocol = in.readByte();
+            //恢复读指针到原来的位置,即 in.mark..位置
             in.resetReaderIndex();
             if (protocol == RpcProtocolV2.PROTOCOL_CODE) {
                 /*
@@ -85,11 +89,11 @@ public class RpcCommandDecoderV2 implements CommandDecoder {
                 if (in.readableBytes() > 2 + 1) {
                     int startIndex = in.readerIndex();
                     in.markReaderIndex();
-                    in.readByte(); //protocol code
-                    byte version = in.readByte(); //protocol version
-                    byte type = in.readByte(); //type
+                    in.readByte(); //protocol code 魔数
+                    byte version = in.readByte(); //protocol version 协议版本
+                    byte type = in.readByte(); //type RPC命令类型
                     if (type == RpcCommandType.REQUEST || type == RpcCommandType.REQUEST_ONEWAY) {
-                        //decode request
+                        //decode request 因已经读取三个byte了,所以需要减3
                         if (in.readableBytes() >= RpcProtocolV2.getRequestHeaderLength() - 3) {
                             short cmdCode = in.readShort();
                             byte ver2 = in.readByte();
@@ -106,6 +110,7 @@ public class RpcCommandDecoderV2 implements CommandDecoder {
 
                             // decide the at-least bytes length for each version
                             int lengthAtLeastForV1 = classLen + headerLen + contentLen;
+                            //判断协议是否开启CRC,如有,最小bytes长度加4
                             boolean crcSwitchOn = ProtocolSwitch.isOn(
                                 ProtocolSwitch.CRC_SWITCH_INDEX, protocolSwitchValue);
                             int lengthAtLeastForV2 = classLen + headerLen + contentLen;
@@ -113,35 +118,43 @@ public class RpcCommandDecoderV2 implements CommandDecoder {
                                 lengthAtLeastForV2 += 4;// crc int
                             }
 
+                            // 如果满足V1协议且长度大于最小V1协议长度 或 满足V2协议且长度大于最小V2协议长度,则继续读取
                             // continue read
                             if ((version == RpcProtocolV2.PROTOCOL_VERSION_1 && in.readableBytes() >= lengthAtLeastForV1)
                                 || (version == RpcProtocolV2.PROTOCOL_VERSION_2 && in
                                     .readableBytes() >= lengthAtLeastForV2)) {
+                                // 读取类
                                 if (classLen > 0) {
                                     clazz = new byte[classLen];
                                     in.readBytes(clazz);
                                 }
+                                // 读取头部
                                 if (headerLen > 0) {
                                     header = new byte[headerLen];
                                     in.readBytes(header);
                                 }
+                                // 读取内容
                                 if (contentLen > 0) {
                                     content = new byte[contentLen];
                                     in.readBytes(content);
                                 }
                                 if (version == RpcProtocolV2.PROTOCOL_VERSION_2 && crcSwitchOn) {
+                                    //校验内容
                                     checkCRC(in, startIndex);
                                 }
-                            } else {// not enough data
+                            } else {// not enough data 不足够的数据,重置读指针
                                 in.resetReaderIndex();
                                 return;
                             }
+
                             RequestCommand command;
+                            //判断是心跳命令还是请求命令
                             if (cmdCode == CommandCode.HEARTBEAT_VALUE) {
                                 command = new HeartbeatCommand();
                             } else {
                                 command = createRequestCommand(cmdCode);
                             }
+                            //封装实体
                             command.setType(type);
                             command.setVersion(ver2);
                             command.setId(requestId);
@@ -235,6 +248,7 @@ public class RpcCommandDecoderV2 implements CommandDecoder {
                 }
 
             } else {
+                //发现魔数异常，抛出不知道的协议错误!
                 String emsg = "Unknown protocol: " + protocol;
                 logger.error(emsg);
                 throw new RuntimeException(emsg);
