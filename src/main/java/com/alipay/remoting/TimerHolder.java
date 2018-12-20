@@ -23,7 +23,8 @@ import io.netty.util.Timer;
 
 /**
  * A singleton holder of the timer for timeout.
- * 
+ *  超时的单例持有者
+ *
  * @author jiangping
  * @version $Id: TimerHolder.java, v 0.1 2015-09-28 2:02:20 tao Exp $
  */
@@ -31,6 +32,7 @@ public class TimerHolder {
 
     private final static long defaultTickDuration = 10;
 
+    // Netty时间轮算法实现
     private static class DefaultInstance {
         static final Timer INSTANCE = new HashedWheelTimer(new NamedThreadFactory(
                                         "DefaultTimer" + defaultTickDuration, true),
