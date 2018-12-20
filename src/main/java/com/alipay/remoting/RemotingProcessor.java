@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * Remoting processor processes remoting commands.
- * 
+ *  远程处理器处理远程处理命令
  * @author jiangping
  * @version $Id: RemotingProcessor.java, v 0.1 Dec 22, 2015 11:48:43 AM tao Exp $
  */
@@ -28,7 +28,7 @@ public interface RemotingProcessor<T extends RemotingCommand> {
 
     /**
      * Process the remoting command.
-     * 
+     *  处理远程命令
      * @param ctx
      * @param msg
      * @param defaultExecutor
@@ -38,14 +38,14 @@ public interface RemotingProcessor<T extends RemotingCommand> {
 
     /**
      * Get the executor.
-     * 
+     * 获取线程池
      * @return
      */
     ExecutorService getExecutor();
 
     /**
      * Set executor.
-     * 
+     * 设置线程池
      * @param executor
      */
     void setExecutor(ExecutorService executor);

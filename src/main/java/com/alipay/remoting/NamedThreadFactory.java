@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Thread factory to name the thread purposely
- *
+ * 创建命名线程工厂
  * @author jiangping
  * @version $Id: NamedThreadFactory.java, v 0.1 Sept 5, 2016 10:17:10 PM tao Exp $
  */

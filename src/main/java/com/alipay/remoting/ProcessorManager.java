@@ -42,9 +42,15 @@ public class ProcessorManager {
 
     private RemotingProcessor<?>                                 defaultProcessor;
 
-    /** The default executor, if no executor is set for processor, this one will be used */
+    /** The default executor, if no executor is set for processor, this one will be used 如果没有为处理类设置线程池,则默认此线程池*/
     private ExecutorService                                      defaultExecutor;
 
+    /**
+     * minPoolSize(线程池的基本大小): 20
+     * maxPoolSize(线程池最大大小): 400
+     * queueSize(任务队列大小): 600
+     * keepAliveTime(线程活动保持时间): 60s
+     */
     private int                                                  minPoolSize    = ConfigManager
                                                                                     .default_tp_min_size();
 
@@ -57,6 +63,7 @@ public class ProcessorManager {
     private long                                                 keepAliveTime  = ConfigManager
                                                                                     .default_tp_keepalive_time();
 
+    // 创建队列大小为600的有界阻塞队列.和名字前缀为Bolt-default-executro的命名线程工厂
     public ProcessorManager() {
         defaultExecutor = new ThreadPoolExecutor(minPoolSize, maxPoolSize, keepAliveTime,
             TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(queueSize), new NamedThreadFactory(
@@ -65,7 +72,7 @@ public class ProcessorManager {
 
     /**
      * Register processor to process command that has the command code of cmdCode.
-     * 
+     * 注册处理器以处理命令代码为cmdCode的命令。
      * @param cmdCode
      * @param processor
      */
