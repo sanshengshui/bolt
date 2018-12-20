@@ -45,7 +45,7 @@ import io.netty.channel.ChannelHandler.Sharable;
 
 /**
  * Rpc command handler.
- * 
+ *  Rpc命令处理类
  * @author jiangping
  * @version $Id: RpcServerHandler.java, v 0.1 2015-8-31 PM7:43:06 tao Exp $
  */
