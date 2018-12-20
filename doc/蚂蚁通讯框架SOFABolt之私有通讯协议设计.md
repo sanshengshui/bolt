@@ -1,6 +1,6 @@
-[TOC]
 
 
+![](/home/james/IdeaProjects/bolt/doc/背景.jpg)
 
 # 前言
 
@@ -86,14 +86,17 @@ invoke sync result = [HELLO WORLD! I'm server return]
 
 > 在Bolt通讯框架中，有2个协议规范。因为设计误差，其中RpcProtocol这个协议版本被废弃，以下的解读为RpcProtocolV2版本。
 
-1. 首先，第一个字段是魔数，通常情况下为固定的几个字节（我们这边规定为1个字节）。                          为什么需要这个字段，而且还是一个固定的数？假设我们在服务器上开了一个端口，比如 80 端口，如果没有这个魔数，任何数据包传递到服务器，服务器都会根据自定义协议来进行处理，包括不符合自定义协议规范的数据包。                                                                                                                                               例如，我们直接通过 `http://服务器ip` 来访问服务器（默认为 80 端口）， 服务端收到的是一个标准的 HTTP 协议数据包，但是它仍然会按照事先约定好的协议来处理 HTTP 协议，显然，这是会解析出错的。而有了这个魔数之后，服务端首先取出前面四个字节进行比对，能够在第一时间识别出这个数据包并非是遵循自定义协议的，也就是无效数据包，为了安全考虑可以直接关闭连接以节省资源。                                        在 Java 的字节码的二进制文件中，开头的 1 个字节为`（byte）2` 用来标识这是个字节码文件，亦是异曲同工之妙。
+1. 首先，第一个字段是魔数，通常情况下为固定的几个字节（我们这边规定为1个字节）。                          为什么需要这个字段，而且还是一个固定的数？假设我们在服务器上开了一个端口，比如 80 端口，如果没有这个魔数，任何数据包传递到服务器，服务器都会根据自定义协议来进行处理。                                                                                                                                               例如，我们直接通过 `http://服务器ip` 来访问服务器（默认为 80 端口）， 服务端收到的是一个标准的 HTTP 协议数据包，但是它仍然会按照事先约定好的协议来处理 HTTP 协议，显然，这是会解析出错的。而有了这个魔数之后，服务端首先取出前面四个字节进行比对，能够在第一时间识别出这个数据包并非是遵循自定义协议的，也就是无效数据包，为了安全考虑可以直接关闭连接以节省资源。                                        在 Java 的字节码的二进制文件中，开头的 1 个字节为`（byte）2` 用来标识这是个字节码文件，亦是异曲同工之妙。
 2. 接下来一个字节为版本号，通常情况下是预留字段，用于协议升级的时候用到，有点类似 TCP 协议中的一个字段标识是 IPV4 协议还是 IPV6 协议，其中第一个版本为(byte) 1，第二个版本为(byte) 2。
 3. 第三部分，type表示Rpc类型是请求命令还是回复命令。其中请求命令分为request_oneway和request,其中request_oneway代表单工，即只请求，不用回复。而request就是常规的请求回复模型。
 4. 第四部分是远程命令代码，远程命令代码代表一种特定的远程命令，每种命令有自己的编号。其中在Bolt，(short) 0被心跳所占用，不能被其他命令所使用。
 5. 第五部分是远程命令代码版本，其作用和协议版本作用相同，为预留字段，用于远程命令版本升级的时候用到。
 6. 第六部分为请求编号，
 7. 第七部分为序列化代码，虽然字段标示是codec,但是实际的意思为Serializer,二者是不同的意思。Serializer主要用于将字节反序列化为对象，或将对象序列化为字节。我们可以使用hessian，json，protocol buff等。默认序列化为Hessian2。
-8. 
+8. 第八部分为功能开关，这个可以对通讯协议部分功能的开启还是关闭来决定是否编解码此位置，例如通过判断协议crc功能是否开启,判断是否对内容进行循环冗余校验。
+9. 第九部分为timeout或respstatus,在Rpc请求命令中此位置为timout(超时时间)，在Rpc回复命令中此位置为respstatus(回复状态)。回复状态有SUCCESS,ERROR,SERVER_EXCEPTION,TIMEOUT等。
+10. 第十部分为classLen,headerLen,contentLen。这些字段表示在负载内容中，类，头部以及内容所占的长度。
+11. CRC32(optional),最后这个字段是可选择的，通过协议开关来决定是否对内容进行循环冗余校验。
 
 ## Encoder 与 Decoder
 
@@ -426,7 +429,91 @@ if (type == RpcCommandType.REQUEST || type == RpcCommandType.REQUEST_ONEWAY) {
 
 ## **Heartbeat**
 
-协议相关的心跳触发与处理：不同的协议对心跳的需求，处理逻辑也可能是不同的。因此心跳的触发逻辑，心跳的处理逻辑，也都需要单独考虑。
+协议相关的心跳触发与处理：不同的协议对心跳的需求，处理逻辑也可能是不同的。因此心跳的触发逻辑，心跳的处理逻辑，也都需要单独考虑。源代码路径为:`com.alipay.remoting.rpc.protocol.RpcHeartbeatTrigger`。
+
+
+
+```
+/** max trigger times 最大触发次数,默认为3次 */
+    public static final Integer maxCount               = ConfigManager.tcp_idle_maxtimes();
+
+    private static final long   heartbeatTimeoutMillis = 1000;
+     @Override
+    public void heartbeatTriggered(final ChannelHandlerContext ctx) throws Exception {
+        //获得连接心跳次数
+        Integer heartbeatTimes = ctx.channel().attr(Connection.HEARTBEAT_COUNT).get();
+        final Connection conn = ctx.channel().attr(Connection.CONNECTION).get();
+        //如果心跳次数触发大于3次,则关闭连接
+        if (heartbeatTimes >= maxCount) {
+            try {
+                conn.close();
+                //抛出异常
+                logger.error(
+                    "Heartbeat failed for {} times, close the connection from client side: {} ",
+                    heartbeatTimes, RemotingUtil.parseRemoteAddress(ctx.channel()));
+            } catch (Exception e) {
+                logger.warn("Exception caught when closing connection in SharableHandler.", e);
+            }
+        } else {
+            boolean heartbeatSwitch = ctx.channel().attr(Connection.HEARTBEAT_SWITCH).get();
+            if (!heartbeatSwitch) {
+                return;
+            }
+            final HeartbeatCommand heartbeat = new HeartbeatCommand();
+
+            final InvokeFuture future = new DefaultInvokeFuture(heartbeat.getId(),
+                new InvokeCallbackListener() {
+                    @Override
+                    public void onResponse(InvokeFuture future) {
+                        ResponseCommand response;
+                        ......
+                        // 触发次数加一
+                            Integer times = ctx.channel().attr(Connection.HEARTBEAT_COUNT).get();
+                            ctx.channel().attr(Connection.HEARTBEAT_COUNT).set(times + 1);
+                        }
+                    }
+
+                    @Override
+                    public String getRemoteAddress() {
+                        return ctx.channel().remoteAddress().toString();
+                    }
+                }, null, heartbeat.getProtocolCode().getFirstByte(), this.commandFactory);
+            final int heartbeatId = heartbeat.getId();
+            conn.addInvokeFuture(future);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Send heartbeat, successive count={}, Id={}, to remoteAddr={}",
+                    heartbeatTimes, heartbeatId, RemotingUtil.parseRemoteAddress(ctx.channel()));
+            }
+            //异步回调结果
+            ctx.writeAndFlush(heartbeat).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    ......
+                }
+            });
+            //TimerHolder为Netty工具类时间轮算法实现 
+            TimerHolder.getTimer().newTimeout(new TimerTask() {
+                @Override
+                public void run(Timeout timeout) throws Exception {
+                    InvokeFuture future = conn.removeInvokeFuture(heartbeatId);
+                    if (future != null) {
+                        future.putResponse(commandFactory.createTimeoutResponse(conn
+                            .getRemoteAddress()));
+                        future.tryAsyncExecuteInvokeCallbackAbnormally();
+                    }
+                }
+            }, heartbeatTimeoutMillis, TimeUnit.MILLISECONDS);
+        }
+
+    }
+```
+
+对HashedWheelTimer感兴趣的人，可以了解一下以下文章。
+
+- 德胜 [《Netty工具类HashedWheelTimer源码走读(一)》](https://my.oschina.net/haogrgr/blog/489320)
+- 德胜 [《Netty工具类HashedWheelTimer源码走读(二)》](https://my.oschina.net/haogrgr/blog/490266)
+- 德胜 [《Netty工具类HashedWheelTimer源码走读(三)》](https://my.oschina.net/haogrgr/blog/490348)
+- Zacard [《netty源码解读之时间轮算法实现-HashedWheelTimer》](https://zacard.net/2016/12/02/netty-hashedwheeltimer/)
 
 
 
@@ -448,10 +535,89 @@ if (type == RpcCommandType.REQUEST || type == RpcCommandType.REQUEST_ONEWAY) {
 
 
 
-  ​                                                                   
+  ### commandFactory与其RpcCommandFactory  
+
+  这2个类的主要作用为命令工厂的作用，用请求实体生成请求命令，以及生成一些带着请求参数，响应结果的命令。回复状态有SUCCESS,ERROR,SERVER_EXCEPTION,TIMEOUT等。   
+
+
+
+  ### RpcCommandHandler和CommandHandler
+
+  ```
+  /**
+   * Command handler.
+   *  命令处理类
+   * @author jiangping
+   * @version $Id: CommandHandler.java, v 0.1 2015-12-14 PM4:03:55 tao Exp $
+   */
+  public interface CommandHandler {
+      /**
+       * Handle the command.
+       *  处理命令
+       * @param ctx
+       * @param msg
+       * @throws Exception
+       */
+      void handleCommand(RemotingContext ctx, Object msg) throws Exception;
+  
+      /**
+       * Register processor for command with specified code.
+       * 注册命令特定代码的处理器
+       * @param cmd
+       * @param processor
+       */
+      void registerProcessor(CommandCode cmd, RemotingProcessor<?> processor);
+  
+      /**
+       * Register default executor for the handler.
+       *  注册处理类的默认执行者
+       * @param executor
+       */
+      void registerDefaultExecutor(ExecutorService executor);
+  
+      /**
+       * Get default executor for the handler.
+       * 得到处理类的默认执行者
+       */
+      ExecutorService getDefaultExecutor();
+  
+  }
+  
+  ```
+
+  ​                      通过创建ExecutorService线程池，将命令的处理提交给线程池来实现。如果没有为此处理类设置线程池，Bolt默认创建一个以下参数的线程池:
+
+  -  corePoolSize(线程池的基本大小) : 20
+
+  - maximumPoolSize(线程池最大大小) :400
+
+  - keepAliveTime(线程活动保持时间): 60s
+
+  - runnableTaskQueue(任务队列): ArrayBlockingQueue,队列大小为6000
+
+  - ThreadFactory: 一个创建前缀为"Bolt-default-executor"的命名工厂。
+
+
+  ​    如若对线程池了解不多的选手，可以阅读以下文章,认知一下。
+
+  [[理解线程池到走进dubbo源码](https://www.cnblogs.com/sanshengshui/p/9702552.html)           
 
 - 
 
-- 
+- # 其他
+
+- 关于蚂蚁通讯框架SOFABolt之私有通讯协议设计详解到这里就结束了。当然以上所有注释，我已在我的github上上传了我的Bolt注释库。
+
+- 链接：https://github.com/sanshengshui/bolt
+
+- 原创不易，如果感觉不错，希望给个推荐！您的支持是我写作的最大动力！
+
+- 版权声明:
+
+- 作者：穆书伟
+
+- github出处：<https://github.com/sanshengshui>　　　　
+
+- 个人博客出处：<https://sanshengshui.github.io/>
 
 - 
